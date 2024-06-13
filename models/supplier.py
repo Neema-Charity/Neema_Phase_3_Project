@@ -1,40 +1,40 @@
-from models.conn import conn, c
+from models.base import BaseModel
 
-class Supplier:
-    def __init__(self, name, material):
+class Supplier(BaseModel):
+    def __init__(self, name):
         self.name = name
-        self.material = material
 
-    @staticmethod
-    def create_table():
-        c.execute("""
+    @classmethod
+    def create_table(cls):
+        query = '''
         CREATE TABLE IF NOT EXISTS suppliers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
-            material TEXT NOT NULL
-        )""")
-        conn.commit()
+            UNIQUE(name)
+        )
+        '''
+        cls.execute_query(query)
 
     def add_supplier(self):
-        c.execute("INSERT INTO suppliers (name, material) VALUES (?,?)", (self.name, self.material))
-        conn.commit()
+        query = 'INSERT INTO suppliers (name) VALUES (?)'
+        self.execute_query(query, (self.name,))
 
-    @staticmethod
-    def update_supplier(id, name, material):
-        c.execute("UPDATE suppliers SET name =?, material =? WHERE id =?", (name, material, id))
-        conn.commit()
+    @classmethod
+    def get_suppliers(cls):
+        query = 'SELECT * FROM suppliers'
+        return cls.fetch_all(query)
 
-    @staticmethod
-    def get_suppliers():
-        c.execute("SELECT * FROM suppliers")
-        return c.fetchall()
+    @classmethod
+    def get_supplier(cls, id):
+        query = 'SELECT * FROM suppliers WHERE id = ?'
+        return cls.fetch_one(query, (id,))
 
-    @staticmethod
-    def get_supplier(id):
-        c.execute("SELECT * FROM suppliers WHERE id =?", (id,))
-        return c.fetchone()
+    @classmethod
+    def update_supplier(cls, id, name):
+        query = 'UPDATE suppliers SET name = ? WHERE id = ?'
+        cls.execute_query(query, (name, id))
 
-    @staticmethod
-    def remove_supplier(id):
-        c.execute("DELETE FROM suppliers WHERE id =?", (id,))
-        conn.commit()
+    @classmethod
+    def remove_supplier(cls, id):
+        query = 'DELETE FROM suppliers WHERE id = ?'
+        cls.execute_query(query, (id,))

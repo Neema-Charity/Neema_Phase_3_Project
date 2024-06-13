@@ -1,44 +1,55 @@
-from models.conn import conn, c
+from models.base import BaseModel
 
-class Material:
-    def __init__(self, name, quantity, supplier, project):
+class Material(BaseModel):
+    def __init__(self, name, quantity, supplier_id, project_id=None):
         self.name = name
         self.quantity = quantity
-        self.supplier = supplier
-        self.project = project
+        self.supplier_id = supplier_id
+        self.project_id = project_id
 
-    @staticmethod
-    def create_table():
-        c.execute("""
+    @classmethod
+    def create_table(cls):
+        query = '''
         CREATE TABLE IF NOT EXISTS materials (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
             quantity INTEGER NOT NULL,
-            supplier TEXT NOT NULL,
-            project TEXT NOT NULL
-        )""")
-        conn.commit()
+            supplier_id INTEGER,
+            project_id INTEGER,
+            UNIQUE(name),
+            FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
+            FOREIGN KEY (project_id) REFERENCES projects(id)
+        )
+        '''
+        cls.execute_query(query)
 
     def add_material(self):
-        c.execute("INSERT INTO materials (name, quantity, supplier, project) VALUES (?,?,?,?)", (self.name, self.quantity, self.supplier, self.project))
-        conn.commit()
+        query = '''
+        INSERT INTO materials (name, quantity, supplier_id, project_id)
+        VALUES (?, ?, ?, ?)
+        '''
+        self.execute_query(query, (self.name, self.quantity, self.supplier_id, self.project_id))
 
-    @staticmethod
-    def update_material(id, name, quantity, supplier, project):
-        c.execute("UPDATE materials SET name =?, quantity =?, supplier =?, project =? WHERE id =?", (name, quantity, supplier, project, id))
-        conn.commit()
+    @classmethod
+    def get_materials(cls):
+        query = 'SELECT * FROM materials'
+        return cls.fetch_all(query)
 
-    @staticmethod
-    def get_materials():
-        c.execute("SELECT * FROM materials")
-        return c.fetchall()
+    @classmethod
+    def get_material(cls, id):
+        query = 'SELECT * FROM materials WHERE id = ?'
+        return cls.fetch_one(query, (id,))
 
-    @staticmethod
-    def get_material(id):
-        c.execute("SELECT * FROM materials WHERE id =?", (id,))
-        return c.fetchone()
+    @classmethod
+    def update_material(cls, id, name, quantity, supplier_id, project_id):
+        query = '''
+        UPDATE materials
+        SET name = ?, quantity = ?, supplier_id = ?, project_id = ?
+        WHERE id = ?
+        '''
+        cls.execute_query(query, (name, quantity, supplier_id, project_id, id))
 
-    @staticmethod
-    def remove_material(id):
-        c.execute("DELETE FROM materials WHERE id =?", (id,))
-        conn.commit()
+    @classmethod
+    def remove_material(cls, id):
+        query = 'DELETE FROM materials WHERE id = ?'
+        cls.execute_query(query, (id,))

@@ -4,7 +4,7 @@ from models.supplier import Supplier
 from models.project import Project
 
 def print_menu():
-    print("Material Management System")
+    print("\nMaterial Management System")
     print("1. Add Material")
     print("2. View All Materials")
     print("3. View Material by ID")
@@ -20,14 +20,16 @@ def print_menu():
     print("13. View Project by ID")
     print("14. Update Project")
     print("15. Delete Project")
-    print("16. Exit")
+    print("16. Add Material to Project")
+    print("17. View Materials by Project")
+    print("18. Exit")
 
 def add_material():
     name = input("Enter name: ")
     quantity = int(input("Enter quantity: "))
-    supplier = input("Enter supplier: ")
-    project = input("Enter project: ")
-    material = Material(name, quantity, supplier, project)
+    supplier_id = int(input("Enter supplier ID: "))
+    project_id = int(input("Enter project ID (or 0 for none): ")) or None
+    material = Material(name, quantity, supplier_id, project_id)
     material.add_material()
     print("Material added successfully.")
 
@@ -48,9 +50,9 @@ def update_material():
     id = int(input("Enter material ID to update: "))
     name = input("Enter new name: ")
     quantity = int(input("Enter new quantity: "))
-    supplier = input("Enter new supplier: ")
-    project = input("Enter new project: ")
-    Material.update_material(id, name, quantity, supplier, project)
+    supplier_id = int(input("Enter new supplier ID: "))
+    project_id = int(input("Enter new project ID (or 0 for none): ")) or None
+    Material.update_material(id, name, quantity, supplier_id, project_id)
     print("Material updated successfully.")
 
 def delete_material():
@@ -60,10 +62,13 @@ def delete_material():
 
 def add_supplier():
     name = input("Enter supplier name: ")
-    material = input("Enter material supplied: ")
-    supplier = Supplier(name, material)
-    supplier.add_supplier()
-    print("Supplier added successfully.")
+    supplier = Supplier(name)
+    try:
+        supplier.add_supplier()
+        print("Supplier added successfully.")
+    except sqlite3.IntegrityError:
+        print("Supplier with the same name already exists.")
+
 
 def view_all_suppliers():
     suppliers = Supplier.get_suppliers()
@@ -81,8 +86,7 @@ def view_supplier_by_id():
 def update_supplier():
     id = int(input("Enter supplier ID to update: "))
     name = input("Enter new name: ")
-    material = input("Enter new material: ")
-    Supplier.update_supplier(id, name, material)
+    Supplier.update_supplier(id, name)
     print("Supplier updated successfully.")
 
 def delete_supplier():
@@ -92,8 +96,7 @@ def delete_supplier():
 
 def add_project():
     name = input("Enter project name: ")
-    material = input("Enter material for project: ")
-    project = Project(name, material)
+    project = Project(name)
     project.add_project()
     print("Project added successfully.")
 
@@ -113,14 +116,25 @@ def view_project_by_id():
 def update_project():
     id = int(input("Enter project ID to update: "))
     name = input("Enter new name: ")
-    material = input("Enter new material: ")
-    Project.update_project(id, name, material)
+    Project.update_project(id, name)
     print("Project updated successfully.")
 
 def delete_project():
     id = int(input("Enter project ID to delete: "))
     Project.remove_project(id)
     print("Project deleted successfully.")
+
+def add_material_to_project():
+    project_id = int(input("Enter project ID: "))
+    material_id = int(input("Enter material ID: "))
+    Project.add_material_to_project(project_id, material_id)
+    print("Material added to project successfully.")
+
+def view_materials_by_project():
+    project_id = int(input("Enter project ID: "))
+    materials = Project.get_materials_by_project(project_id)
+    for material in materials:
+        print(material)
 
 def main():
     Material.create_table()
@@ -160,6 +174,10 @@ def main():
         elif choice == '15':
             delete_project()
         elif choice == '16':
+            add_material_to_project()
+        elif choice == '17':
+            view_materials_by_project()
+        elif choice == '18':
             sys.exit()
         else:
             print("Invalid choice. Please try again.")
