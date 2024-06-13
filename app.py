@@ -48,7 +48,7 @@ def view_material_by_id():
 
 def update_material():
     id = int(input("Enter material ID to update: "))
-    name = input("Enter new name: ")
+    name = input("Enter new material: ")
     quantity = int(input("Enter new quantity: "))
     supplier_id = int(input("Enter new supplier ID: "))
     project_id = int(input("Enter new project ID (or 0 for none): ")) or None
@@ -115,7 +115,7 @@ def view_project_by_id():
 
 def update_project():
     id = int(input("Enter project ID to update: "))
-    name = input("Enter new name: ")
+    name = input("Enter new project name: ")
     Project.update_project(id, name)
     print("Project updated successfully.")
 
