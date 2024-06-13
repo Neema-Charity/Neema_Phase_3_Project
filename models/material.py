@@ -7,7 +7,8 @@ class Material:
         self.supplier = supplier
         self.project = project
 
-    def create_material(self, name, quantity, supplier, project):
+    @staticmethod
+    def create_table():
         c.execute("""
         CREATE TABLE IF NOT EXISTS materials (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,24 +17,28 @@ class Material:
             supplier TEXT NOT NULL,
             project TEXT NOT NULL
         )""")
+        conn.commit()
 
     def add_material(self):
         c.execute("INSERT INTO materials (name, quantity, supplier, project) VALUES (?,?,?,?)", (self.name, self.quantity, self.supplier, self.project))
         conn.commit()
 
-    def update_material(self, id, name, quantity, supplier, project):
+    @staticmethod
+    def update_material(id, name, quantity, supplier, project):
         c.execute("UPDATE materials SET name =?, quantity =?, supplier =?, project =? WHERE id =?", (name, quantity, supplier, project, id))
         conn.commit()
 
-    def get_materials(self):
+    @staticmethod
+    def get_materials():
         c.execute("SELECT * FROM materials")
         return c.fetchall()
 
-    def get_material(self, id):
+    @staticmethod
+    def get_material(id):
         c.execute("SELECT * FROM materials WHERE id =?", (id,))
         return c.fetchone()
 
-    def remove_material(self, id):
+    @staticmethod
+    def remove_material(id):
         c.execute("DELETE FROM materials WHERE id =?", (id,))
         conn.commit()
-
