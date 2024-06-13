@@ -5,7 +5,6 @@ class Project(BaseModel):
         self.name = name
 
     @classmethod
-    @classmethod
     def create_table(cls):
         query1 = '''
         CREATE TABLE IF NOT EXISTS projects (
